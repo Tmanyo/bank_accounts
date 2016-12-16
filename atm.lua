@@ -5,7 +5,23 @@ accounts = {
 }
 
 minetest.register_on_newplayer(function(player)
-     accounts[player:get_player_name()] = 0
+     accounts.balance[player:get_player_name()] = 0
+     accounts.pin[player:get_player_name()] = 0000
+     accounts.credit[player:get_player_name()] = 0
+     save_account()
+end)
+
+minetest.register_on_joinplayer(function(player)
+     for k, v in pairs(accounts.balance) do
+          if not accounts.balance[player:get_player_name()] then
+               accounts.balance[player:get_player_name()] = 0
+               accounts.pin[player:get_player_name()] = 0000
+               accounts.credit[player:get_player_name()] = 0
+               save_account()
+          else
+               return false
+          end
+     end
 end)
 
 minetest.register_chatcommand("set_pin", {
@@ -80,7 +96,7 @@ end
 
 local monthly_payment = {}
 function monthly_credit(player)
-     if get_credit(player) == nil then
+     if get_credit(player) == 0 then
           monthly_payment = 0
      else
           monthly_payment = math.floor(get_credit(player) * .04)

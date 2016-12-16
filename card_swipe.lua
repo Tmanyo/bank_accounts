@@ -13,15 +13,7 @@ local insert_stuff = minetest.create_detached_inventory("insert_stuff", {
 
 insert_stuff:set_size("main", 8)
 
-local output_stuff = minetest.create_detached_inventory("output_stuff", {
-     allow_take = function(inv, listname, index, stack, player)
-          return 100000
-     end,
-     on_take = function(inv, listname, index, stack, player) end,
-})
-
-output_stuff:set_size("main", 8)
-
+local owner = {}
 minetest.register_node("bank_accounts:card_swipe", {
      description = "Card Swipe",
      drawtype = "mesh",
@@ -54,24 +46,28 @@ minetest.register_node("bank_accounts:card_swipe", {
                     "button_exit[3,7.4;2,1;exit;Cancel]" ..
                     "button_exit[5,7.4;2,1;enter;Enter]")
           elseif player:get_player_name() ~= meta:get_string("owner") then
-               if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
-                    minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
-                         "size[8,8]" ..
-                         "label[1,1;Price: $" .. price .. "]" ..
-                         "list[detached:insert_stuff;main;0,1.5;8,1]" ..
-                         "list[current_player;main;0,3;8,4;]" ..
-                         "button_exit[3,7;2,1;exit;Cancel]" ..
-                         "button_exit[5,7;2,1;enter;Enter]")
-               elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
-                    minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
-                         "size[8,8]" ..
-                         "label[1,1;Price: $" .. price .. "]" ..
-                         "list[detached:insert_stuff;main;0,1.5;8,1]" ..
-                         "list[current_player;main;0,3;8,4;]" ..
-                         "button_exit[3,7;2,1;exit;Cancel]" ..
-                         "button_exit[5,7;2,1;enter;Enter]")
+               if tonumber(price) == nil then
+                    minetest.chat_send_player(player:get_player_name(), "[Card swipe] No price has been set.")
                else
-                    minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Must use debit or credit card.")
+                    if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
+                         minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
+                              "size[8,8]" ..
+                              "label[1,1;Price: $" .. price .. "]" ..
+                              "list[detached:insert_stuff;main;0,1.5;8,1]" ..
+                              "list[current_player;main;0,3;8,4;]" ..
+                              "button_exit[3,7;2,1;exit;Cancel]" ..
+                              "button_exit[5,7;2,1;enter;Enter]")
+                    elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
+                         minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
+                              "size[8,8]" ..
+                              "label[1,1;Price: $" .. price .. "]" ..
+                              "list[detached:insert_stuff;main;0,1.5;8,1]" ..
+                              "list[current_player;main;0,3;8,4;]" ..
+                              "button_exit[3,7;2,1;exit;Cancel]" ..
+                              "button_exit[5,7;2,1;enter;Enter]")
+                    else
+                         minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Must use debit or credit card.")
+                    end
                end
           end
      end,
@@ -97,22 +93,19 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
      if formname == "bank_accounts:card_swipe_buyer" then
           if fields.enter then
                if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
-                    if price > accounts.balance[player:get_player_name()] then
-                         local meta = minetest.get_meta(pos)
+                    if tonumber(price) > accounts.balance[player:get_player_name()] then
                          minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
-                         minetest.chat_send_player(meta:get_string("owner"), "[Card Swipe] Buyer does not have enough money.")
-                    elseif price <= accounts.balance[player:get_player_name()] then
-                         local meta = minetest.get_meta(pos)
+                         minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
+                    elseif tonumber(price) <= accounts.balance[player:get_player_name()] then
                          minetest.chat_send_player(meta:get_string("owner"), "[Card Swipe] Items successfully bought.")
-                         accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - price
-                         accounts.balance[meta:get_string("owner")] = accounts.balance[meta:get_string("owner")] + price
+                         accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(price)
+                         accounts.balance[owner] = accounts.balance[owner] + price
                          save_account()
                     end
                elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
-                    local meta = minetest.get_meta(pos)
                     minetest.chat_send_player(meta:get_string("owner"), "[Card Swipe] Items successfully bought.")
-                    accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] + price
-                    accounts.balance[meta:get_string("owner")] = accounts.balance[meta:get_string("owner")] + price
+                    accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] + tonumber(price)
+                    accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
                     save_account()
                end
           end
