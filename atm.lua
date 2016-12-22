@@ -56,7 +56,8 @@ minetest.register_node("bank_accounts:atm", {
      mesh = "atm.obj",
      paramtype = "light",
      paramtype2 = "facedir",
-     groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2},
+     tiles = {"atm_col.png"},
+     groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2, not_in_creative_inventory=1},
      on_rightclick = function(pos, node, player, itemstack, pointed_thing)
           if player:get_wielded_item():to_string() ~= "bank_accounts:atm_card" then
                minetest.chat_send_player(player:get_player_name(), "[ATM] Must use ATM card.")
@@ -126,10 +127,14 @@ local ones = minetest.create_detached_inventory("ones", {
           end
           if stack:is_empty() == true then
                deposited_ones = 0
+          elseif stack:get_count() == 1 then
+               local inventory = player:get_inventory()
+               inventory:add_item("main", {name=stack:get_name(), count=1})
+               inv:set_stack(listname, index, nil)
+               minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
           else
                deposited_ones = stack:get_count()
           end
-          inv:set_stack(listname, index, nil)
      end,
 })
 
@@ -148,10 +153,14 @@ local fives = minetest.create_detached_inventory("fives", {
           end
           if stack:is_empty() == true then
                deposited_fives = 0
+          elseif stack:get_count() == 1 then
+               local inventory = player:get_inventory()
+               inventory:add_item("main", {name=stack:get_name(), count=1})
+               inv:set_stack(listname, index, nil)
+               minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
           else
-               deposited_fives = (stack:get_count() * 5)
+               deposited_fives = stack:get_count() * 5
           end
-          inv:set_stack(listname, index, nil)
      end,
 })
 
@@ -170,10 +179,14 @@ local tens = minetest.create_detached_inventory("tens", {
           end
           if stack:is_empty() == true then
                deposited_tens = 0
+          elseif stack:get_count() == 1 then
+               local inventory = player:get_inventory()
+               inventory:add_item("main", {name=stack:get_name(), count=1})
+               inv:set_stack(listname, index, nil)
+               minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
           else
-               deposited_tens = (stack:get_count() * 10)
+               deposited_tens = stack:get_count() * 10
           end
-          inv:set_stack(listname, index, nil)
      end,
 })
 
@@ -191,6 +204,15 @@ function add_deposit(player, deposited_ones, deposited_fives, deposited_tens)
      end
      accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] + tonumber(deposited_ones) + tonumber(deposited_fives) + tonumber(deposited_tens)
      save_account()
+end
+
+function clear_slots(listname, index, stack)
+     ones:set_stack("main", 1, nil)
+     deposited_ones = 0
+     fives:set_stack("main", 1, nil)
+     deposited_fives = 0
+     tens:set_stack("main", 1, nil)
+     deposited_tens = 0
 end
 
 function main_form(player)
@@ -305,7 +327,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
      end
      if formname == "bank_accounts:deposit" then
           if fields.enter then
-               add_deposit(player, deposited_ones, deposited_fives, deposited_tens)
+               add_deposit(player, deposited_ones, deposited_fives, deposited_tens, listname, index, stack)
+               clear_slots(listname, index, stack)
                main_form(player)
           end
           if fields.exit then
@@ -314,56 +337,46 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
      end
      if formname == "bank_accounts:monthly_credit_payment" then
           if fields.month_button then
-               for k, v in pairs(accounts.balance) do
-                    if accounts.balance[player:get_player_name()] == nil then
+               if accounts.balance[player:get_player_name()] == nil then
+                    minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
+               else
+                    if accounts.balance[player:get_player_name()] >= (get_credit(player) * .04) then
+                         accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] - math.floor(get_credit(player) * .04)
+                         minetest.chat_send_player(player:get_player_name(), "[ATM] Monthly credit payment successfully paid.")
+                         accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - math.floor(get_credit(player) * .04)
+                         save_account()
+                    elseif accounts.balance[player:get_player_name()] < (get_credit(player) * .04) then
                          minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
-                    else
-                         if accounts.balance[player:get_player_name()] >= (get_credit(player) * .04) then
-                              for k, v in pairs(accounts.credit) do
-                                   accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] - math.floor(get_credit(player) * .04)
-                                   minetest.chat_send_player(player:get_player_name(), "[ATM] Monthly credit payment successfully paid.")
-                              end
-                              accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - math.floor(get_credit(player) * .04)
-                              save_account()
-                         elseif accounts.balance[player:get_player_name()] < (get_credit(player) * .04) then
-                              minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
-                         end
                     end
-                    main_form(player)
                end
+               main_form(player)
           end
           if fields.enter then
                if accounts.balance[player:get_player_name()] == nil then
                     minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
                else
-                    for k, v in pairs(accounts.credit) do
-                         if string.match(fields.number, "%a") or string.match(fields.number, "%a+") then
-                              minetest.chat_send_player(player:get_player_name(), "[ATM] Account balance and credit unchanged.")
-                         elseif fields.number == "" or fields.number == nil then
-                              minetest.chat_send_player(player:get_player_name(), "[ATM] No amount input.")
+                    if string.match(fields.number, "%a") or string.match(fields.number, "%a+") then
+                         minetest.chat_send_player(player:get_player_name(), "[ATM] Account balance and credit unchanged.")
+                    elseif fields.number == "" or fields.number == nil then
+                         minetest.chat_send_player(player:get_player_name(), "[ATM] No amount input.")
+                    else
+                         if tonumber(fields.number) > accounts.credit[player:get_player_name()] then
+                              minetest.chat_send_player(player:get_player_name(), "[ATM] You don't have that much credit debt.")
                          else
-                              if tonumber(fields.number) > accounts.credit[player:get_player_name()] then
-                                   minetest.chat_send_player(player:get_player_name(), "[ATM] You don't have that much credit debt.")
-                              else
-                                   if tonumber(fields.number) >= math.floor(get_credit(player) * .04) then
-                                        for k, v in pairs(accounts.balance) do
-                                             if accounts.balance[player:get_player_name()] >= tonumber(fields.number) then
-                                                  for k, v in pairs(accounts.credit) do
-                                                       accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] - tonumber(fields.number)
-                                                       minetest.chat_send_player(player:get_player_name(), "[ATM] $" .. tonumber(fields.number) .. " of credit debt successfully paid.")
-                                                  end
-                                                  accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(fields.number)
-                                                  save_account()
-                                             elseif accounts.balance[player:get_player_name()] < tonumber(fields.number) then
-                                                  minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
-                                             end
-                                        end
-                                        main_form(player)
-                                   elseif tonumber(fields.number) < math.floor(get_credit(player) * .04) then
-                                        minetest.chat_send_player(player:get_player_name(), "[ATM] Payment must be larger than the minimum monthly payment.")
-                                   elseif string.match(fields.number, "%a") or string.match(fields.number, "%a+") then
-                                        minetest.chat_send_player(player:get_player_name(), "[ATM] Account balance and credit unchanged.")
+                              if tonumber(fields.number) >= math.floor(get_credit(player) * .04) then
+                                   if accounts.balance[player:get_player_name()] >= tonumber(fields.number) then
+                                        accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] - tonumber(fields.number)
+                                        minetest.chat_send_player(player:get_player_name(), "[ATM] $" .. tonumber(fields.number) .. " of credit debt successfully paid.")
+                                        accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(fields.number)
+                                        save_account()
+                                   elseif accounts.balance[player:get_player_name()] < tonumber(fields.number) then
+                                        minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
                                    end
+                                   main_form(player)
+                              elseif tonumber(fields.number) < math.floor(get_credit(player) * .04) then
+                                   minetest.chat_send_player(player:get_player_name(), "[ATM] Payment must be larger than the minimum monthly payment.")
+                              elseif string.match(fields.number, "%a") or string.match(fields.number, "%a+") then
+                                   minetest.chat_send_player(player:get_player_name(), "[ATM] Account balance and credit unchanged.")
                               end
                          end
                     end

@@ -20,6 +20,7 @@ minetest.register_node("bank_accounts:card_swipe", {
      mesh = "card_swipe.obj",
      paramtype = "light",
      paramtype2 = "facedir",
+     tiles = {"card_reader_col.png"},
      groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2},
      after_place_node = function(pos, placer)
           local owner = placer:get_player_name()
@@ -97,13 +98,13 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                          minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
                          minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
                     elseif tonumber(price) <= accounts.balance[player:get_player_name()] then
-                         minetest.chat_send_player(meta:get_string("owner"), "[Card Swipe] Items successfully bought.")
+                         minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
                          accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(price)
                          accounts.balance[owner] = accounts.balance[owner] + price
                          save_account()
                     end
                elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
-                    minetest.chat_send_player(meta:get_string("owner"), "[Card Swipe] Items successfully bought.")
+                    minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
                     accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] + tonumber(price)
                     accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
                     save_account()
