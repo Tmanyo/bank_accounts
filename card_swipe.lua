@@ -1,4 +1,5 @@
 price = {}
+owner_account = {}
 
 local insert_stuff = minetest.create_detached_inventory("insert_stuff", {
      allow_put = function(inv, listname, index, stack, player)
@@ -13,7 +14,6 @@ local insert_stuff = minetest.create_detached_inventory("insert_stuff", {
 
 insert_stuff:set_size("main", 8)
 
-local owner = {}
 minetest.register_node("bank_accounts:card_swipe", {
      description = "Card Swipe",
      drawtype = "mesh",
@@ -23,8 +23,8 @@ minetest.register_node("bank_accounts:card_swipe", {
      tiles = {"card_reader_col.png"},
      groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2},
      after_place_node = function(pos, placer)
-          local owner = placer:get_player_name()
 		local meta = minetest.get_meta(pos)
+          local owner = placer:get_player_name()
 		meta:set_string("infotext", "Card Swipe (owned by "..owner..")")
 		meta:set_string("owner",owner)
      end,
@@ -38,6 +38,7 @@ minetest.register_node("bank_accounts:card_swipe", {
      end,
      on_rightclick = function(pos, node, player, itemstack, pointed_thing)
           local meta = minetest.get_meta(pos)
+          owner_account = meta:get_string("owner")
           if player:get_player_name() == meta:get_string("owner") then
                minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_seller",
                     "size[8,8]" ..
@@ -89,9 +90,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                else
                     price = fields.cash
                end
+               local s = minetest.serialize(owner_account)
+               local owner = s:gsub("return", ""):gsub("%p", ""):gsub(" ", "")
+               print(owner)
           end
      end
      if formname == "bank_accounts:card_swipe_buyer" then
+          local s = minetest.serialize(owner_account)
+          local owner = s:gsub("return", ""):gsub("%p", ""):gsub(" ", "")
           if fields.enter then
                if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
                     if tonumber(price) > accounts.balance[player:get_player_name()] then
@@ -100,7 +106,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                     elseif tonumber(price) <= accounts.balance[player:get_player_name()] then
                          minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
                          accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(price)
-                         accounts.balance[owner] = accounts.balance[owner] + price
+                         accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
                          save_account()
                     end
                elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
