@@ -138,8 +138,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                               minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
                               local inv = inventory
                               inv:add_item("items", {name=item_name, count=count_stack})
-                              local inv2 = player:get_inventory()
-                              inv2:add_item("main", {name=item_name, count=-count_stack})
+                              player:get_inventory():add_item("main", {name=item_name, count=-count_stack})
                          elseif tonumber(price) <= accounts.balance[player:get_player_name()] then
                               minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Items successfully bought.")
                               minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
