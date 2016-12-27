@@ -1,8 +1,6 @@
 price = {}
 owner_account = {}
-item_name = {}
-count_stack = {}
-inventory = {}
+debit = 0
 done = 0
 
 --[[local insert_stuff = minetest.create_detached_inventory("insert_stuff", {
@@ -29,7 +27,6 @@ minetest.register_node("bank_accounts:card_swipe", {
      on_construct = function(pos)
           local meta = minetest.get_meta(pos)
           local inv = meta:get_inventory()
-          inventory = meta:get_inventory()
           inv:set_size("items", 8*1)
      end,
      after_place_node = function(pos, placer)
@@ -64,6 +61,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                else
                     if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
                          local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
+                         debit = 1
                          minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
                               "size[8,8]" ..
                               "label[1,1;Price: $" .. price .. "]" ..
@@ -95,8 +93,13 @@ minetest.register_node("bank_accounts:card_swipe", {
           return stack:get_count()
      end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-          item_name = stack:get_name()
-          count_stack = stack:get_count()
+          if debit == 1 then
+               if accounts.balance[player:get_player_name()] < tonumber(price) then
+                    return false
+               else
+                    return true
+               end
+          end
           done = done + 1
           return stack:get_count()
      end,
@@ -136,9 +139,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                          if tonumber(price) > accounts.balance[player:get_player_name()] then
                               minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
                               minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
-                              local inv = inventory
-                              inv:add_item("items", {name=item_name, count=count_stack})
-                              player:get_inventory():add_item("main", {name=item_name, count=-count_stack})
                          elseif tonumber(price) <= accounts.balance[player:get_player_name()] then
                               minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Items successfully bought.")
                               minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
@@ -153,6 +153,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                          accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
                          save_account()
                     end
+                    debit = 0
                     done = 0
                end
           end
