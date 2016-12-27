@@ -1,5 +1,8 @@
 price = {}
 owner_account = {}
+item_name = {}
+count_stack = {}
+inventory = {}
 done = 0
 
 --[[local insert_stuff = minetest.create_detached_inventory("insert_stuff", {
@@ -26,6 +29,7 @@ minetest.register_node("bank_accounts:card_swipe", {
      on_construct = function(pos)
           local meta = minetest.get_meta(pos)
           local inv = meta:get_inventory()
+          inventory = meta:get_inventory()
           inv:set_size("items", 8*1)
      end,
      after_place_node = function(pos, placer)
@@ -63,7 +67,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                          minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
                               "size[8,8]" ..
                               "label[1,1;Price: $" .. price .. "]" ..
-                              "label[.5,1.25;Take your items then click enter.]" ..
+                              "label[.5,2.5;Take your items then click enter.]" ..
                               "list[" .. list_name ..";items;0,1.5;8,1]" ..
                               "list[current_player;main;0,3;8,4;]" ..
                               "button_exit[3,7;2,1;exit;Cancel]" ..
@@ -73,7 +77,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                          minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
                               "size[8,8]" ..
                               "label[1,1;Price: $" .. price .. "]" ..
-                              "label[.5,1.25;Take your items then click enter.]" ..
+                              "label[.5,2.5;Take your items then click enter.]" ..
                               "list[" .. list_name ..";items;0,1.5;8,1]" ..
                               "list[current_player;main;0,3;8,4;]" ..
                               "button_exit[3,7;2,1;exit;Cancel]" ..
@@ -91,6 +95,8 @@ minetest.register_node("bank_accounts:card_swipe", {
           return stack:get_count()
      end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
+          item_name = stack:get_name()
+          count_stack = stack:get_count()
           done = done + 1
           return stack:get_count()
      end,
@@ -130,13 +136,19 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                          if tonumber(price) > accounts.balance[player:get_player_name()] then
                               minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
                               minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
+                              local inv = inventory
+                              inv:add_item("items", {name=item_name, count=count_stack})
+                              local inv2 = player:get_inventory()
+                              inv2:add_item("main", {name=item_name, count=-count_stack})
                          elseif tonumber(price) <= accounts.balance[player:get_player_name()] then
+                              minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Items successfully bought.")
                               minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
                               accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(price)
                               accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
                               save_account()
                          end
                     elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
+                         minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Items successfully bought.")
                          minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
                          accounts.credit[player:get_player_name()] = accounts.credit[player:get_player_name()] + tonumber(price)
                          accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
