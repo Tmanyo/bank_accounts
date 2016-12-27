@@ -1,6 +1,5 @@
 price = {}
 owner_account = {}
-debit = 0
 done = 0
 
 -- Create visible card-swipe node.
@@ -49,16 +48,21 @@ minetest.register_node("bank_accounts:card_swipe", {
                     minetest.chat_send_player(player:get_player_name(), "[Card swipe] No price has been set.")
                else
                     if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
+                         local s = minetest.serialize(owner_account)
+                         local owner = s:gsub("return", ""):gsub("{", ""):gsub("}", ""):gsub("\"", ""):gsub(" ", "")
                          local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
-                         debit = 1
-                         minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
-                              "size[8,8]" ..
-                              "label[1,1;Price: $" .. price .. "]" ..
-                              "label[.5,2.5;Take your items then click enter.]" ..
-                              "list[" .. list_name ..";items;0,1.5;8,1]" ..
-                              "list[current_player;main;0,3;8,4;]" ..
-                              "button_exit[3,7;2,1;exit;Cancel]" ..
-                              "button_exit[5,7;2,1;enter;Enter]")
+                         if tonumber(price) > accounts.balance[player:get_player_name()] then
+                              minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
+                              minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
+                         else
+                              minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
+                                   "size[8,8]" ..
+                                   "label[1,1;Price: $" .. price .. "]" ..
+                                   "label[.5,2.5;Take your items then click enter.]" ..
+                                   "list[" .. list_name ..";items;0,1.5;8,1]" ..
+                                   "list[current_player;main;0,3;8,4;]" ..
+                                   "button_exit[3,7;2,1;exit;Cancel]" ..
+                                   "button_exit[5,7;2,1;enter;Enter]")
                     elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
                          local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
                          minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
@@ -82,14 +86,8 @@ minetest.register_node("bank_accounts:card_swipe", {
           return stack:get_count()
      end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-          if debit == 1 then
-               if accounts.balance[player:get_player_name()] < tonumber(price) then
-                    return 0
-               else
-                    return stack:get_count()
-               end
-          end
           done = done + 1
+          return stack:get_count()
      end,
 })
 
@@ -132,10 +130,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                     minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Please re-enter and take your items.")
                else
                     if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
-                         if tonumber(price) > accounts.balance[player:get_player_name()] then
-                              minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
-                              minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
-                         elseif tonumber(price) <= accounts.balance[player:get_player_name()] then
+                         if tonumber(price) <= accounts.balance[player:get_player_name()] then
                               minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Items successfully bought.")
                               minetest.chat_send_player(owner, "[Card Swipe] Items successfully bought.")
                               accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(price)
@@ -149,7 +144,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                          accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
                          save_account()
                     end
-                    debit = 0
                     done = 0
                end
           end
