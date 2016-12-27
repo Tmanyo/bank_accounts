@@ -3,19 +3,7 @@ owner_account = {}
 debit = 0
 done = 0
 
---[[local insert_stuff = minetest.create_detached_inventory("insert_stuff", {
-     allow_put = function(inv, listname, index, stack, player)
-          return 100000
-     end,
-     allow_take = function(inv, listname, index, stack, player)
-          return 100000
-     end,
-     on_take = function(inv, listname, index, stack, player) end,
-     on_put = function(inv, listname, index, stack, player) end,
-})]]
-
---insert_stuff:set_size("main", 8)
-
+-- Create visible card-swipe node.
 minetest.register_node("bank_accounts:card_swipe", {
      description = "Card Swipe",
      drawtype = "mesh",
@@ -53,6 +41,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                     "field[1,1;4,1;cash;Dollar Amount:;]" ..
                     "list[" .. list_name ..";items;0,2;8,1]" ..
                     "list[current_player;main;0,3.5;8,4;]" ..
+                    "button[1,7.4;2,1;reset;Reset]" ..
                     "button_exit[3,7.4;2,1;exit;Cancel]" ..
                     "button_exit[5,7.4;2,1;enter;Enter]")
           elseif player:get_player_name() ~= meta:get_string("owner") then
@@ -104,6 +93,7 @@ minetest.register_node("bank_accounts:card_swipe", {
      end,
 })
 
+-- Create craft recipe.
 minetest.register_craft({
      output = "bank_accounts:card_swipe",
      recipe = {
@@ -113,8 +103,12 @@ minetest.register_craft({
      },
 })
 
+-- Read the saved data.
 accounts = read_account()
 
+--
+-- Actions based off what the player clicked or inputted into a form.
+--
 minetest.register_on_player_receive_fields(function(player, formname, fields)
      if formname == "bank_accounts:card_swipe_seller" then
           if fields.enter then
@@ -125,6 +119,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                else
                     price = fields.cash
                end
+          end
+          if fields.reset then
+               price = nil
           end
      end
      if formname == "bank_accounts:card_swipe_buyer" then

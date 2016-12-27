@@ -1,9 +1,13 @@
+-- Create tables that are saved
 accounts = {
      balance = {},
      pin = {},
      credit = {}
 }
 
+--
+-- Make sure players that don't have accounts get accounts.
+--
 minetest.register_on_newplayer(function(player)
      accounts.balance[player:get_player_name()] = 0
      accounts.pin[player:get_player_name()] = 0000
@@ -24,24 +28,9 @@ minetest.register_on_joinplayer(function(player)
      end
 end)
 
-minetest.register_chatcommand("set_pin", {
-     param = "<number>",
-     description = "Set pin for bank account.",
-     func = function(name, param)
-          if param == nil or param == "" then
-               minetest.chat_send_player(name, "[Account] No numbers entered.")
-          elseif string.match(param, "%d%d%d%d") ~= param then
-               minetest.chat_send_player(name, "[Account] Invalid number entered.")
-          elseif string.match(param, "%d%d%d%d") then
-               minetest.chat_send_player(name, "[Account] Pin successfully set!")
-               accounts.pin[name] = param
-               local player = minetest.get_player_by_name(name)
-               local inv = player:get_inventory()
-               inv:add_item("main", {name="bank_accounts:atm_card", count=1})
-               save_account()
-          end
-     end
-})
+--
+-- Create the visible aspects of the atm.
+--
 
 minetest.register_craftitem("bank_accounts:atm_card", {
      description = "ATM Card",
@@ -70,6 +59,10 @@ minetest.register_node("bank_accounts:atm", {
           end
      end
 })
+
+--
+-- Functions used to get account statistics
+--
 
 local balance = {}
 function get_balance(player)
@@ -104,6 +97,10 @@ function monthly_credit(player)
      end
      return monthly_payment
 end
+
+--
+-- Create detached inventories for either withdrawal or specific currency amounts.
+--
 
 local withdrawn_money = minetest.create_detached_inventory("withdrawn_money", {
      allow_take = function(inv, listname, index, stack, player)
@@ -192,6 +189,7 @@ local tens = minetest.create_detached_inventory("tens", {
 
 tens:set_size("main", 1)
 
+-- Add up the total deposited currency.
 function add_deposit(player, deposited_ones, deposited_fives, deposited_tens)
      if tonumber(deposited_ones) == nil then
           deposited_ones = 0
@@ -206,6 +204,7 @@ function add_deposit(player, deposited_ones, deposited_fives, deposited_tens)
      save_account()
 end
 
+-- Clear the deposit slots so that players can't deposit currency more than once.
 function clear_slots(listname, index, stack)
      ones:set_stack("main", 1, nil)
      deposited_ones = 0
@@ -215,6 +214,7 @@ function clear_slots(listname, index, stack)
      deposited_tens = 0
 end
 
+-- Create the main page of the ATM.
 function main_form(player)
      minetest.show_formspec(player:get_player_name(), "bank_accounts:atm_options",
           "size[8,8]" ..
@@ -229,15 +229,21 @@ function main_form(player)
           "button_exit[5,7;2,1;exit;Close]")
 end
 
+--
+-- Actions based off what the player clicked or inputted into a form.
+--
+
 minetest.register_on_player_receive_fields(function(player, formname, fields)
      accounts = read_account()
      if formname == "bank_accounts:atm_home" then
           if fields.enter then
+               -- Makes sure that the account goes to the right player.
                for k, v in pairs(accounts.pin) do
                     if fields.fourdigitpin == accounts.pin[player:get_player_name()] then
                          main_form(player)
                     end
                end
+               -- Checks for correct PIN.
                if fields.fourdigitpin ~= accounts.pin[player:get_player_name()] then
                     minetest.chat_send_player(player:get_player_name(), "[ATM] Invalid Pin.")
                end
