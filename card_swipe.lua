@@ -95,13 +95,14 @@ minetest.register_node("bank_accounts:card_swipe", {
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
           if debit == 1 then
                if accounts.balance[player:get_player_name()] < tonumber(price) then
-                    return false
+                    local nothing = 0
+                    return false and nothing
                else
                     return true
                end
           end
           done = done + 1
-          return stack:get_count()
+          return stack:get_count() or nothing
      end,
 })
 
