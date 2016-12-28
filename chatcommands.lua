@@ -127,3 +127,37 @@ minetest.register_chatcommand("subtract", {
           end
      end
 })
+
+-- If you have server priv, you can seize a player's account.
+minetest.register_chatcommand("seize", {
+     param = "<name>",
+     description = "Seize a player's account.",
+     func = function(name, param)
+          if minetest.check_player_privs(name, {server=true}) == true then
+               if not accounts.balance[param] then
+                    minetest.chat_send_player(name, "[Bank] Invalid name entered.")
+               else
+                    accounts.seized[param] = 1
+                    save_account()
+                    minetest.chat_send_player(name, "[Bank] Account successfully seized!")
+               end
+          end
+     end
+})
+
+-- If you have server priv, you can unseize a player's account.
+minetest.register_chatcommand("unseize", {
+     param = "<name>",
+     description = "Unseize a player's account.",
+     func = function(name, param)
+          if minetest.check_player_privs(name, {server=true}) == true then
+               if not accounts.balance[param] then
+                    minetest.chat_send_player(name, "[Bank] Invalid name entered.")
+               else
+                    accounts.seized[param] = 0
+                    save_account()
+                    minetest.chat_send_player(name, "[Bank] Account successfully seized!")
+               end
+          end
+     end
+})

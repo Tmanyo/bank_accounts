@@ -45,16 +45,30 @@ minetest.register_node("bank_accounts:card_swipe", {
                     "button_exit[5,7.4;2,1;enter;Enter]")
           elseif player:get_player_name() ~= meta:get_string("owner") then
                if tonumber(price) == nil then
-                    minetest.chat_send_player(player:get_player_name(), "[Card swipe] No price has been set.")
+                    minetest.chat_send_player(player:get_player_name(), "[Card Swipe] No price has been set.")
                else
-                    if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
-                         local s = minetest.serialize(owner_account)
-                         local owner = s:gsub("return", ""):gsub("{", ""):gsub("}", ""):gsub("\"", ""):gsub(" ", "")
-                         local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
-                         if tonumber(price) > accounts.balance[player:get_player_name()] then
-                              minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
-                              minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
-                         else
+                    if accounts.seized[player:get_player_name()] == 1 then
+                         minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Your account was seized!")
+                    else
+                         if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
+                              local s = minetest.serialize(owner_account)
+                              local owner = s:gsub("return", ""):gsub("{", ""):gsub("}", ""):gsub("\"", ""):gsub(" ", "")
+                              local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
+                              if tonumber(price) > accounts.balance[player:get_player_name()] then
+                                   minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Card declined.")
+                                   minetest.chat_send_player(owner, "[Card Swipe] Buyer does not have enough money.")
+                              else
+                                   minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
+                                        "size[8,8]" ..
+                                        "label[1,1;Price: $" .. price .. "]" ..
+                                        "label[.5,2.5;Take your items then click enter.]" ..
+                                        "list[" .. list_name ..";items;0,1.5;8,1]" ..
+                                        "list[current_player;main;0,3;8,4;]" ..
+                                        "button_exit[3,7;2,1;exit;Cancel]" ..
+                                        "button_exit[5,7;2,1;enter;Enter]")
+                              end
+                         elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
+                              local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
                               minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
                                    "size[8,8]" ..
                                    "label[1,1;Price: $" .. price .. "]" ..
@@ -63,19 +77,9 @@ minetest.register_node("bank_accounts:card_swipe", {
                                    "list[current_player;main;0,3;8,4;]" ..
                                    "button_exit[3,7;2,1;exit;Cancel]" ..
                                    "button_exit[5,7;2,1;enter;Enter]")
-			 end
-                    elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
-                         local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
-                         minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
-                              "size[8,8]" ..
-                              "label[1,1;Price: $" .. price .. "]" ..
-                              "label[.5,2.5;Take your items then click enter.]" ..
-                              "list[" .. list_name ..";items;0,1.5;8,1]" ..
-                              "list[current_player;main;0,3;8,4;]" ..
-                              "button_exit[3,7;2,1;exit;Cancel]" ..
-                              "button_exit[5,7;2,1;enter;Enter]")
-                    else
-                         minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Must use debit or credit card.")
+                         else
+                              minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Must use debit or credit card.")
+                         end
                     end
                end
           end
