@@ -1,6 +1,9 @@
 # bank_accounts
 This mod adds an ATM, card swipe, debit and credit cards to Minetest.
 
+# Important
+If you have privs priv.  When you grant yourself all, you will be given "seized" priv.  Revoke it, else your account will be seized.
+
 Credits:
  - NathanS21 for textures and models
  - Tmanyo for code.
