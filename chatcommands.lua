@@ -1,6 +1,11 @@
 -- Read saved data.
 accounts = read_account()
 
+minetest.register_privilege("seized", {
+     description = "Account seized.",
+     give_to_singleplayer = false,
+})
+
 -- Set your PIN.
 minetest.register_chatcommand("set_pin", {
      param = "<number>",
@@ -137,8 +142,9 @@ minetest.register_chatcommand("seize", {
                if not accounts.balance[param] then
                     minetest.chat_send_player(name, "[Bank] Invalid name entered.")
                else
-                    accounts.seized[param] = 1
-                    save_account()
+                    local privs = minetest.get_player_privs(param)
+                    privs.seized = true
+                    minetest.set_player_privs(param, privs)
                     minetest.chat_send_player(name, "[Bank] Account successfully seized!")
                end
           end
@@ -154,9 +160,12 @@ minetest.register_chatcommand("unseize", {
                if not accounts.balance[param] then
                     minetest.chat_send_player(name, "[Bank] Invalid name entered.")
                else
-                    accounts.seized[param] = 0
-                    save_account()
-                    minetest.chat_send_player(name, "[Bank] Account successfully seized!")
+                    local privs = minetest.get_player_privs(param)
+                    for seized, _ in pairs(privs) do
+                         privs[seized] = nil
+                    end
+                    minetest.set_player_privs(param, privs)
+                    minetest.chat_send_player(name, "[Bank] Account successfully unseized!")
                end
           end
      end

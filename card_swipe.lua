@@ -47,7 +47,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                if tonumber(price) == nil then
                     minetest.chat_send_player(player:get_player_name(), "[Card Swipe] No price has been set.")
                else
-                    if accounts.seized[player:get_player_name()] == 1 then
+                    if minetest.check_player_privs(player:get_player_name(), {seized=true}) == true then
                          minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Your account was seized!")
                     else
                          if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
