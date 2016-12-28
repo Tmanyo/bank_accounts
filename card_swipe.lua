@@ -63,6 +63,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                                    "list[current_player;main;0,3;8,4;]" ..
                                    "button_exit[3,7;2,1;exit;Cancel]" ..
                                    "button_exit[5,7;2,1;enter;Enter]")
+			 end
                     elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
                          local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
                          minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
