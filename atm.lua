@@ -3,7 +3,6 @@ accounts = {
      balance = {},
      pin = {},
      credit = {},
-     seized = {}
 }
 
 --
@@ -14,7 +13,6 @@ minetest.register_on_newplayer(function(player)
      accounts.balance[player:get_player_name()] = 0
      accounts.pin[player:get_player_name()] = 0000
      accounts.credit[player:get_player_name()] = 0
-     accounts.seized[player:get_player_name()] = 0
      save_account()
 end)
 
@@ -24,7 +22,6 @@ minetest.register_on_joinplayer(function(player)
                accounts.balance[player:get_player_name()] = 0
                accounts.pin[player:get_player_name()] = 0000
                accounts.credit[player:get_player_name()] = 0
-               accounts.seized[player:get_player_name()] = 0
                save_account()
           else
                return false
