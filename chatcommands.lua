@@ -161,9 +161,7 @@ minetest.register_chatcommand("unseize", {
                     minetest.chat_send_player(name, "[Bank] Invalid name entered.")
                else
                     local privs = minetest.get_player_privs(param)
-                    for seized, _ in pairs(privs) do
-                         privs[seized] = nil
-                    end
+                    privs.seized = nil
                     minetest.set_player_privs(param, privs)
                     minetest.chat_send_player(name, "[Bank] Account successfully unseized!")
                end
