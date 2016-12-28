@@ -48,13 +48,6 @@ minetest.register_node("bank_accounts:atm", {
      paramtype2 = "facedir",
      tiles = {"atm_col.png"},
      groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2, not_in_creative_inventory=1},
-     after_place_node = function(pos, placer)
-          local meta = minetest.get_meta(pos)
-          local inv = meta:get_inventory()
-          inv:set_size("ones", 1)
-          inv:set_size("fives", 1)
-          inv:set_size("tens", 1)
-     end,
      on_rightclick = function(pos, node, player, itemstack, pointed_thing)
           if player:get_wielded_item():to_string() ~= "bank_accounts:atm_card" then
                minetest.chat_send_player(player:get_player_name(), "[ATM] Must use ATM card.")
@@ -65,15 +58,6 @@ minetest.register_node("bank_accounts:atm", {
                     "button[5,6;2,1;enter;Enter]" ..
                     "button_exit[3,6;2,1;exit;Cancel]")
           end
-     end,
-     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-          return count
-     end,
-	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-          return stack:get_count()
-     end,
-	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-          return stack:get_count()
      end
 })
 
@@ -152,7 +136,7 @@ local ones = minetest.create_detached_inventory("ones", {
      end,
 })
 
-ones:set_size("ones", 1)
+ones:set_size("main", 1)
 
 local deposited_fives = {}
 local fives = minetest.create_detached_inventory("fives", {
@@ -178,7 +162,7 @@ local fives = minetest.create_detached_inventory("fives", {
      end,
 })
 
-fives:set_size("fives", 1)
+fives:set_size("main", 1)
 
 local deposited_tens = {}
 local tens = minetest.create_detached_inventory("tens", {
@@ -204,7 +188,7 @@ local tens = minetest.create_detached_inventory("tens", {
      end,
 })
 
-tens:set_size("tens", 1)
+tens:set_size("main", 1)
 
 -- Add up the total deposited currency.
 function add_deposit(player, deposited_ones, deposited_fives, deposited_tens)
@@ -223,11 +207,11 @@ end
 
 -- Clear the deposit slots so that players can't deposit currency more than once.
 function clear_slots(listname, index, stack)
-     ones:set_stack("ones", 1, nil)
+     ones:set_stack("main", 1, nil)
      deposited_ones = 0
-     fives:set_stack("fives", 1, nil)
+     fives:set_stack("main", 1, nil)
      deposited_fives = 0
-     tens:set_stack("tens", 1, nil)
+     tens:set_stack("main", 1, nil)
      deposited_tens = 0
 end
 
@@ -280,9 +264,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                     "label[1,.5;$1]" ..
                     "label[2,.5;$5]" ..
                     "label[3,.5;$10]" ..
-                    "list[detached:ones;ones;.75,1;1,1]" ..
-                    "list[detached:fives;fives;1.75,1;1,1]" ..
-                    "list[detached:tens;tens;2.75,1;1,1]" ..
+                    "list[detached:ones;main;.75,1;1,1]" ..
+                    "list[detached:fives;main;1.75,1;1,1]" ..
+                    "list[detached:tens;main;2.75,1;1,1]" ..
                     "list[current_player;main;0,3;8,4;]" ..
                     "button[5,7;2,1;enter;Enter]" ..
                     "button[3,7;2,1;exit;Cancel]")
