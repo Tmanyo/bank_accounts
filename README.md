@@ -1,6 +1,10 @@
 # bank_accounts
 This mod adds an ATM, card swipe, debit and credit cards to Minetest.
 
+Credits:
+ - NathanS21 for textures and models
+ - Tmanyo for code.
+
 This mod uses the currency mod to provide different ways of paying for items in Minetest.
  - Debit card
  - Credit Card
