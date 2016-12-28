@@ -12,6 +12,25 @@ This mod uses the currency mod to provide different ways of paying for items in 
  - Debit card
  - Credit Card
 
+All Items:
+ - ATM (Automatic Teller Machine)
+ - Card-Swipe
+ - ATM Card
+ - Debit Card
+ - Credit Card
+
+Chatcommands:
+ - All players:
+  - /set_pin #### (Set your Personal Identification Number)
+ - Admins:
+  - /account_balance {name} {number} | (Set a player's account balance)
+  - /wipe {name} | (Clear a player's bank account)
+  - /forgive {name} | (Clear a player's credit debt)
+  - /add {name} {number} | (Add to a player's account balance)
+  - /subtract {name} {number} | (Subtract from a player's account balance)
+  - /seize {name} | (Seize a player's account)
+  - /unseize {name} | (Unseize a player's account)
+
 With a debit card, when you buy an item through a card-swipe, it automatically takes money that you have deposited out of your account.
 With a credit card, when you buy an item through a card-swipe, it builds up credit debt.  There is a recommended monthly credit payment.
 If you don't pay the payment, version 1.0 of this mod will not penalize you.  It is more incentive to pay off your credit debt.  Admins 
