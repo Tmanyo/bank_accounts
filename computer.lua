@@ -168,7 +168,7 @@ end
 
 accounts = read_account()
 
-function stats_form(player, playername, pos)
+function stats_form(player, playername)
      local pos = pos_data
      local meta = minetest.get_meta(pos)
      local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
@@ -295,11 +295,11 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
           end
           -- Rrefresh account stats.
           if fields.refresh then
-               stats_form(player, playername, pos)
+               stats_form(player, playername)
           end
           -- Show player's accounts specifications.
           if fields.stats then
-               stats_form(player, playername, pos)
+               stats_form(player, playername)
           end
      end
 end)

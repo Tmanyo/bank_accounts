@@ -15,15 +15,13 @@ deposited_tens = {}
 --
 
 minetest.register_on_joinplayer(function(player)
-     for k, v in pairs(accounts.balance) do
-          if not accounts.balance[player:get_player_name()] then
-               accounts.balance[player:get_player_name()] = 0
-               accounts.pin[player:get_player_name()] = 0000
-               accounts.credit[player:get_player_name()] = 0
-               save_account()
-          else
-               return false
-          end
+     if not accounts.balance[player:get_player_name()] or accounts.balance[player:get_player_name()] == "" or nil then
+          accounts.balance[player:get_player_name()] = 0
+          accounts.pin[player:get_player_name()] = 0000
+          accounts.credit[player:get_player_name()] = 0
+          save_account()
+     else
+          return false
      end
 end)
 
