@@ -5,7 +5,7 @@ This mod adds an ATM, card swipe, debit and credit cards to Minetest.
 If you have privs priv.  When you grant yourself all, you will be given "seized" priv.  Revoke it, else your account will be seized.
 
 Credits:
- - NathanS21 for textures and models
+ - NathanS21 for textures and models.
  - Tmanyo for code.
 
 This mod uses the currency mod to provide different ways of paying for items in Minetest.
@@ -30,6 +30,10 @@ Chatcommands:
   - /subtract {name} {number} | (Subtract from a player's account balance)
   - /seize {name} | (Seize a player's account)
   - /unseize {name} | (Unseize a player's account)
+
+Privileges:
+ - bank_teller (Allows players to use a Bank Teller's Computer.  You should only give this to trusted individuals.)
+ - seized (If you have this, your account has been seized.  You do not want this privilege.)
 
 With a debit card, when you buy an item through a card-swipe, it automatically takes money that you have deposited out of your account.
 With a credit card, when you buy an item through a card-swipe, it builds up credit debt.  There is a recommended monthly credit payment.
@@ -57,3 +61,6 @@ to pay it off.
 You can view use of the chatcommands by viewing the chatcommands.lua file.
 This mod is under development still, so there may be some issues.
 You can reach the mod creator on irc.inchra.net - #RRHMS-DownDeep or Freenode irc - #minetest.
+
+Bank Teller's Computer:
+This is used by people who have the bank_teller privilege.  It has all the features an ATM does and allows for wiping a player's account, forgiving credit debt, reseting PINs, and over-viewing player's account statistics.  If you are an admin, you can press E and rightclick this node, to search player names to check if they are seized or not.
