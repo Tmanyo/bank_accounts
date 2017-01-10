@@ -1,5 +1,6 @@
 price = {}
 owner_account = {}
+card_used = {}
 done = 0
 
 -- Create visible card-swipe node.
@@ -11,6 +12,18 @@ minetest.register_node("bank_accounts:card_swipe", {
      paramtype2 = "facedir",
      tiles = {"card_reader_col.png"},
      groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2},
+     selection_box = {
+          type = "fixed",
+          fixed = {
+               {-.3,-.5,-.3,.4,-.2,.3}
+          },
+     },
+     collision_box = {
+          type = "fixed",
+          fixed = {
+               {-.3,-.5,-.3,.4,-.2,.3}
+          },
+     },
      on_construct = function(pos)
           local meta = minetest.get_meta(pos)
           local inv = meta:get_inventory()
@@ -51,6 +64,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                          minetest.chat_send_player(player:get_player_name(), "[Card Swipe] Your account was seized!")
                     else
                          if player:get_wielded_item():to_string() == "bank_accounts:debit_card" then
+                              card_used = "Debit Card"
                               local s = minetest.serialize(owner_account)
                               local owner = s:gsub("return", ""):gsub("{", ""):gsub("}", ""):gsub("\"", ""):gsub(" ", "")
                               local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
@@ -68,6 +82,7 @@ minetest.register_node("bank_accounts:card_swipe", {
                                         "button_exit[5,7;2,1;enter;Enter]")
                               end
                          elseif player:get_wielded_item():to_string() == "bank_accounts:credit_card" then
+                              card_used = "Credit Card"
                               local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
                               minetest.show_formspec(player:get_player_name(), "bank_accounts:card_swipe_buyer",
                                    "size[8,8]" ..
@@ -149,8 +164,20 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                          accounts.balance[owner] = accounts.balance[owner] + tonumber(price)
                          save_account()
                     end
+                    local inv = player:get_inventory()
+                    inv:add_item("main", {name="bank_accounts:receipt", count=1})
                     done = 0
                end
           end
+     end
+end)
+
+minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing)
+     if puncher:get_wielded_item():to_string() == "bank_accounts:receipt" then
+          minetest.show_formspec(puncher:get_player_name(), "bank_accounts:receipt_form",
+               "size[3,4]" ..
+               "label[1,0;Receipt]" ..
+               "label[0,1.25;Price: $" .. price .. "]" ..
+               "label[0,2;Card Used: " .. card_used .. "]")
      end
 end)
