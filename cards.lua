@@ -15,3 +15,10 @@ minetest.register_craftitem("bank_accounts:debit_card", {
      groups = {not_in_creative_inventory=1},
           stack_max = 1,
 })
+
+minetest.register_craftitem("bank_accounts:receipt", {
+     description = "Receipt",
+     inventory_image = "receipt.png",
+     groups = {not_in_creative_inventory=1},
+          stack_max = 1,
+})
