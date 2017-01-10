@@ -63,4 +63,4 @@ This mod is under development still, so there may be some issues.
 You can reach the mod creator on irc.inchra.net - #RRHMS-DownDeep or Freenode irc - #minetest.
 
 Bank Teller's Computer:
-This is used by people who have the bank_teller privilege.  It has all the features an ATM does and allows for wiping a player's account, forgiving credit debt, reseting PINs, and over-viewing player's account statistics.  If you are an admin, you can press E and rightclick this node, to search player names to check if they are seized or not.
+ - This is used by people who have the bank_teller privilege.  It has all the features an ATM does and allows for wiping a player's   account, forgiving credit debt, reseting PINs, and over-viewing player's account statistics.  If you are an admin, you can press E and rightclick this node, to search player names to check if they are seized or not.
