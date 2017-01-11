@@ -16,7 +16,7 @@ minetest.register_node("bank_accounts:teller_computer", {
      mesh = "computer.obj",
      paramtype = "light",
      paramtype2 = "facedir",
-     tiles = {"computer.png"},
+     tiles = {"computer.png","computer_screen.png"},
      groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2, not_in_creative_inventory=1},
      on_construct = function(pos)
           local meta = minetest.get_meta(pos)
