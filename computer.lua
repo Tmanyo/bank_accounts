@@ -16,8 +16,23 @@ minetest.register_node("bank_accounts:teller_computer", {
      mesh = "computer.obj",
      paramtype = "light",
      paramtype2 = "facedir",
-     tiles = {"computer.png","computer_screen.png"},
+     light_source = 5,
+     tiles = {
+          {name="computer.png"},{name="computer_screen.png"},
+     },
      groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2, not_in_creative_inventory=1},
+     selection_box = {
+          type = "fixed",
+          fixed = {
+               {-.5,-.5,-.5,.5,.4,.2},
+          },
+     },
+     collision_box = {
+          type = "fixed",
+          fixed = {
+               {-.5,-.5,-.5,.5,.4,.2},
+          },
+     },
      on_construct = function(pos)
           local meta = minetest.get_meta(pos)
           local inv = meta:get_inventory()
@@ -27,29 +42,41 @@ minetest.register_node("bank_accounts:teller_computer", {
      end,
      on_rightclick = function(pos, node, player, itemstack, pointed_thing)
           pos_data = pos
-          if minetest.check_player_privs(player:get_player_name(), {bank_teller=true}) == true then
-               local meta = minetest.get_meta(pos)
-               local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
-               minetest.show_formspec(player:get_player_name(), "bank_accounts:teller",
-                    "size[8,8]" ..
-                    "label[0,-.25;Deposit:]" ..
-                    "list[" .. list_name .. ";ones;0,.25;1,1]" ..
-                    "list[" .. list_name .. ";fives;1,.25;1,1]" ..
-                    "list[" .. list_name .. ";tens;2,.25;1,1]" ..
-                    "label[.5,1;$1]" ..
-                    "label[1.5,1;$5]" ..
-                    "label[2.5,1;$10]" ..
-                    "field[4,.5;4,1;playername;Player:;]" ..
-                    "field[.3,2.25;4,1;withdrawal;Withdraw:;]" ..
-                    "field[.3,3.25;4,1;credit_debt;Credit Payment:;]" ..
-                    "button[5,1;2,1;stats;View Account Stats]" ..
-                    "button[5,2;2,1;forgive;Forgive Credit]" ..
-                    "button[5,3;2,1;wipe;Wipe Account]" ..
-                    "button[5,4;2,1;reset_pin;Reset PIN]" ..
-                    "button[.5,5.5;2,1;refresh;Refresh]" ..
-                    "button_exit[3,5.5;2,1;exit;Cancel]" ..
-                    "button_exit[5,5.5;2,1;enter;Enter]" ..
-                    "list[current_player;main;0,7;8,1]")
+          if player:get_player_control().aux1 then
+               if minetest.check_player_privs(player:get_player_name(), {server=true}) == true then
+                    minetest.show_formspec(player:get_player_name(), "bank_accounts:admin_teller",
+                         "size[8,8]" ..
+                         "field[.5,.5;4,1;search;Search:;]" ..
+                         "button[4.5,.22;2,1;search_button;Search]" ..
+                         "label[.5,1.25;Player:                                    Seized:]")
+               else
+                    minetest.chat_send_player(player:get_player_name(), "[Bank] Insufficient privs.")
+               end
+          else
+               if minetest.check_player_privs(player:get_player_name(), {bank_teller=true}) == true then
+                    local meta = minetest.get_meta(pos)
+                    local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
+                    minetest.show_formspec(player:get_player_name(), "bank_accounts:teller",
+                         "size[8,8]" ..
+                         "label[0,-.25;Deposit:]" ..
+                         "list[" .. list_name .. ";ones;0,.25;1,1]" ..
+                         "list[" .. list_name .. ";fives;1,.25;1,1]" ..
+                         "list[" .. list_name .. ";tens;2,.25;1,1]" ..
+                         "label[.5,1;$1]" ..
+                         "label[1.5,1;$5]" ..
+                         "label[2.5,1;$10]" ..
+                         "field[4,.5;4,1;playername;Player:;]" ..
+                         "field[.3,2.25;4,1;withdrawal;Withdraw:;]" ..
+                         "field[.3,3.25;4,1;credit_debt;Credit Payment:;]" ..
+                         "button[5,1;2,1;stats;View Account Stats]" ..
+                         "button[5,2;2,1;forgive;Forgive Credit]" ..
+                         "button[5,3;2,1;wipe;Wipe Account]" ..
+                         "button[5,4;2,1;reset_pin;Reset PIN]" ..
+                         "button[.5,5.5;2,1;refresh;Refresh]" ..
+                         "button_exit[3,5.5;2,1;exit;Cancel]" ..
+                         "button_exit[5,5.5;2,1;enter;Enter]" ..
+                         "list[current_player;main;0,7;8,1]")
+               end
           end
      end,
      allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
@@ -168,6 +195,24 @@ end
 
 accounts = read_account()
 
+function admin_form_no_results(player)
+     minetest.show_formspec(player:get_player_name(), "bank_accounts:admin_teller",
+          "size[8,8]" ..
+          "field[.5,.5;4,1;search;Search:;]" ..
+          "button[4.5,.22;2,1;search_button;Search]" ..
+          "label[.5,1.25;Player:                                    Seized:]" ..
+          "label[3.5,1.75;No Results!]")
+end
+
+function admin_form_results(player, search_name, seized)
+     minetest.show_formspec(player:get_player_name(), "bank_accounts:admin_teller",
+          "size[8,8]" ..
+          "field[.5,.5;4,1;search;Search:;]" ..
+          "button[4.5,.22;2,1;search_button;Search]" ..
+          "label[.5,1.25;Player:                                    Seized:]" ..
+          "label[.5,1.75;" .. search_name .. "                                    " .. seized .. "]")
+end
+
 function stats_form(player, playername)
      local pos = pos_data
      local meta = minetest.get_meta(pos)
@@ -197,6 +242,26 @@ function stats_form(player, playername)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
+     if formname == "bank_accounts:admin_teller" then
+          if fields.search_button then
+               if fields.search ~= "" then
+                    local search_name = fields.search
+                    if not accounts.balance[search_name] then
+                         admin_form_no_results(player)
+                    else
+                         local seized = {}
+                         if minetest.check_player_privs(search_name, {seized=true}) == true then
+                              seized = "Yes"
+                         else
+                              seized = "No"
+                         end
+                         admin_form_results(player, search_name, seized)
+                    end
+               else
+                    minetest.chat_send_player(player:get_player_name(), "[Bank] No player name entered.")
+               end
+          end
+     end
      local playername = fields.playername
      if formname == "bank_accounts:teller" then
           if fields.enter then
@@ -206,6 +271,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                else
                     -- Check if player has an account.
                     if accounts.balance[playername] == nil then
+                         minetest.chat_send_player(player:get_player_name(), "[Bank] Invalid player name entered.")
                          return false
                     else
                          -- Deposit money.
@@ -295,11 +361,19 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
           end
           -- Rrefresh account stats.
           if fields.refresh then
-               stats_form(player, playername)
+               if not accounts.balance[playername] then
+                    minetest.chat_send_player(player:get_player_name(), "[Bank] Invalid player name entered.")
+               else
+                    stats_form(player, playername)
+               end
           end
           -- Show player's accounts specifications.
           if fields.stats then
-               stats_form(player, playername)
+               if not accounts.balance[playername] then
+                    minetest.chat_send_player(player:get_player_name(), "[Bank] Invalid player name entered.")
+               else
+                    stats_form(player, playername)
+               end
           end
      end
 end)
