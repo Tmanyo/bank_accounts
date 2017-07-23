@@ -2,6 +2,8 @@
 This mod adds an ATM, card swipe, debit and credit cards to Minetest.
 
 # Important
+To get an ATM, you must have the give priv.  Type "/giveme bank_accounts:atm".  I designed it this way to prevent buildings from being built out of ATMs.  I want the mod to be realistic, and buildings made out of ATMs are not realistic.
+
 If you have privs priv.  When you grant yourself all, you will be given "seized" priv.  Revoke it, else your account will be seized.
 
 Credits:
