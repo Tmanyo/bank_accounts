@@ -38,7 +38,10 @@ minetest.register_node("bank_accounts:card_swipe", {
      can_dig = function(pos, player)
           local meta = minetest.get_meta(pos)
           if player:get_player_name() == meta:get_string("owner") then
-               return true
+	       local inv = meta:get_inventory()
+	       if inv:is_empty("items") == true then
+               	     return true
+	       end
           else
                return false
           end
