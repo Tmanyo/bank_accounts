@@ -302,9 +302,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                     elseif string.match(fields.money, "%a") or string.match(fields.money, "%a+") then
                          minetest.chat_send_player(player:get_player_name(), "[ATM] Account balance unchanged.")
                          return false
-                    elseif accounts.balance[player:get_player_name()] < tonumber(fields.money) then
+                    elseif tonumber(accounts.balance[player:get_player_name()]) < tonumber(fields.money) then
                          minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
-                    elseif accounts.balance[player:get_player_name()] >= tonumber(fields.money) then
+                    elseif tonumber(accounts.balance[player:get_player_name()]) >= tonumber(fields.money) then
                          accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(fields.money)
                          minetest.chat_send_player(player:get_player_name(), "[ATM] Funds Successfully Withdrawn!")
                          total_tens = math.floor(tonumber(fields.money) / 10)
