@@ -15,14 +15,14 @@ deposited_tens = {}
 --
 
 minetest.register_on_joinplayer(function(player)
-     if not accounts.balance[player:get_player_name()] or accounts.balance[player:get_player_name()] == "" or nil then
-          accounts.balance[player:get_player_name()] = 0
-          accounts.pin[player:get_player_name()] = 0000
-          accounts.credit[player:get_player_name()] = 0
-          save_account()
-     else
-          return false
-     end
+     	if not accounts.balance[player:get_player_name()] or accounts.balance[player:get_player_name()] == "" or nil then
+          	accounts.balance[player:get_player_name()] = 0
+          	accounts.pin[player:get_player_name()] = 0000
+          	accounts.credit[player:get_player_name()] = 0
+          	save_account()
+     	else
+          	return false
+     	end
 end)
 
 --
@@ -30,114 +30,114 @@ end)
 --
 
 minetest.register_craftitem("bank_accounts:atm_card", {
-     description = "ATM Card",
-     inventory_image = "atm_card.png",
-     groups = {not_in_creative_inventory=1},
-          stack_max = 1,
+     	description = "ATM Card",
+     	inventory_image = "atm_card.png",
+     	groups = {not_in_creative_inventory=1},
+          	stack_max = 1,
 })
 
 minetest.register_node("bank_accounts:atm", {
-     description = "Automatic Teller Machine",
-     drawtype = "mesh",
-     mesh = "atm.obj",
-     paramtype = "light",
-     paramtype2 = "facedir",
-     tiles = {"atm_col.png"},
-     groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2, not_in_creative_inventory=1},
-     on_rightclick = function(pos, node, player, itemstack, pointed_thing)
-          pos_info = pos
-          if player:get_wielded_item():to_string() ~= "bank_accounts:atm_card" then
-               minetest.chat_send_player(player:get_player_name(), "[ATM] Must use ATM card.")
-          else
-               minetest.show_formspec(player:get_player_name(), "bank_accounts:atm_home",
-                    "size[8,8]" ..
-                    "pwdfield[2,4;4,1;fourdigitpin;Four Digit Pin:]" ..
-                    "button[5,6;2,1;enter;Enter]" ..
-                    "button_exit[3,6;2,1;exit;Cancel]")
-          end
-     end,
-     allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
+     	description = "Automatic Teller Machine",
+     	drawtype = "mesh",
+     	mesh = "atm.obj",
+     	paramtype = "light",
+     	paramtype2 = "facedir",
+     	tiles = {"atm_col.png"},
+     	groups = {cracky=3, crumbly=3, oddly_breakable_by_hand=2, not_in_creative_inventory=1},
+     	on_rightclick = function(pos, node, player, itemstack, pointed_thing)
+          	pos_info = pos
+          	if player:get_wielded_item():to_string() ~= "bank_accounts:atm_card" then
+               		minetest.chat_send_player(player:get_player_name(), "[ATM] Must use ATM card.")
+          	else
+               		minetest.show_formspec(player:get_player_name(), "bank_accounts:atm_home",
+                    		"size[8,8]" ..
+                    		"pwdfield[2,4;4,1;fourdigitpin;Four Digit Pin:]" ..
+                    		"button[5,6;2,1;enter;Enter]" ..
+                    		"button_exit[3,6;2,1;exit;Cancel]")
+          	end
+     	end,
+     	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
           return count
-     end,
+     	end,
 	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-          local meta = minetest.get_meta(pos)
-          local inv = meta:get_inventory()
-          if listname == "ones" then
-               if stack:get_name() ~= "currency:minegeld" then
-                    local inventory = player:get_inventory()
-                    inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                    remove_currency = 1
-               end
-          end
-          if listname == "fives" then
-               if stack:get_name() ~= "currency:minegeld_5" then
-                    local inventory = player:get_inventory()
-                    inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                    remove_currency = 1
-               end
-          end
-          if listname == "tens" then
-               if stack:get_name() ~= "currency:minegeld_10" then
-                    local inventory = player:get_inventory()
-                    inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                    remove_currency = 1
-               end
-          end
-          return 30000
-     end,
+          	local meta = minetest.get_meta(pos)
+          	local inv = meta:get_inventory()
+          	if listname == "ones" then
+               		if stack:get_name() ~= "currency:minegeld" then
+                    		local inventory = player:get_inventory()
+                    		inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                    		remove_currency = 1
+               		end
+	        end
+          	if listname == "fives" then
+               		if stack:get_name() ~= "currency:minegeld_5" then
+                    		local inventory = player:get_inventory()
+                    		inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                    		remove_currency = 1
+               		end
+          	end
+          	if listname == "tens" then
+               		if stack:get_name() ~= "currency:minegeld_10" then
+                    		local inventory = player:get_inventory()
+                    		inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                    		remove_currency = 1
+               		end
+          	end
+          	return 30000
+     	end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-          return stack:get_count()
-     end,
-     on_metadata_inventory_put = function(pos, listname, index, stack, player)
-          local meta = minetest.get_meta(pos)
-          local inv = meta:get_inventory()
-          if listname == "ones" then
-               if remove_currency == 1 then
-                    inv:set_stack("ones", index, nil)
-                    remove_currency = 0
-               end
-               if stack:is_empty() == true then
-                    deposited_ones = 0
-               elseif stack:get_count() == 1 then
-                    local inventory = player:get_inventory()
-                    inventory:add_item("main", {name=stack:get_name(), count=1})
-                    inv:set_stack("ones", index, nil)
-                    minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
-               else
-                    deposited_ones = stack:get_count()
-               end
+          	return stack:get_count()
+     	end,
+     	on_metadata_inventory_put = function(pos, listname, index, stack, player)
+          	local meta = minetest.get_meta(pos)
+          	local inv = meta:get_inventory()
+          	if listname == "ones" then
+               		if remove_currency == 1 then
+                    		inv:set_stack("ones", index, nil)
+                    		remove_currency = 0
+               		end
+               		if stack:is_empty() == true then
+                    		deposited_ones = 0
+               		elseif stack:get_count() == 1 then
+                    		local inventory = player:get_inventory()
+                    		inventory:add_item("main", {name=stack:get_name(), count=1})
+                    		inv:set_stack("ones", index, nil)
+                    		minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
+               	else
+                    	deposited_ones = stack:get_count()
+               	end
           end
           if listname == "fives" then
-               if remove_currency == 1 then
-                    inv:set_stack("fives", index, nil)
-                    remove_currency = 0
-               end
-               if stack:is_empty() == true then
-                    deposited_fives = 0
-               elseif stack:get_count() == 1 then
-                    local inventory = player:get_inventory()
-                    inventory:add_item("main", {name=stack:get_name(), count=1})
-                    inv:set_stack("fives", index, nil)
-                    minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
-               else
-                    deposited_fives = stack:get_count() * 5
-               end
+               	if remove_currency == 1 then
+                    	inv:set_stack("fives", index, nil)
+                    	remove_currency = 0
+               	end
+               	if stack:is_empty() == true then
+                    	deposited_fives = 0
+               	elseif stack:get_count() == 1 then
+                    	local inventory = player:get_inventory()
+                    	inventory:add_item("main", {name=stack:get_name(), count=1})
+                    	inv:set_stack("fives", index, nil)
+                    	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
+               	else
+                    	deposited_fives = stack:get_count() * 5
+               	end
           end
           if listname == "tens" then
-               if remove_currency == 1 then
-                    inv:set_stack("tens", index, nil)
-                    remove_currency = 0
-               end
-               if stack:is_empty() == true then
-                    deposited_tens = 0
-               elseif stack:get_count() == 1 then
-                    local inventory = player:get_inventory()
-                    inventory:add_item("main", {name=stack:get_name(), count=1})
-                    inv:set_stack("tens", index, nil)
-                    minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
-               else
-                    deposited_tens = stack:get_count() * 10
-               end
+               	if remove_currency == 1 then
+                    	inv:set_stack("tens", index, nil)
+                    	remove_currency = 0
+               	end
+               	if stack:is_empty() == true then
+                    	deposited_tens = 0
+               	elseif stack:get_count() == 1 then
+                    	local inventory = player:get_inventory()
+                    	inventory:add_item("main", {name=stack:get_name(), count=1})
+                    	inv:set_stack("tens", index, nil)
+                    	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
+               	else
+                    	deposited_tens = stack:get_count() * 10
+               	end
           end
      end,
 })
@@ -302,24 +302,27 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                     elseif string.match(fields.money, "%a") or string.match(fields.money, "%a+") then
                          minetest.chat_send_player(player:get_player_name(), "[ATM] Account balance unchanged.")
                          return false
-                    elseif tonumber(accounts.balance[player:get_player_name()]) < tonumber(fields.money) then
+		 elseif tonumber(accounts.balance[player:get_player_name()]) < tonumber(fields.money) then
                          minetest.chat_send_player(player:get_player_name(), "[ATM] Insufficient funds.")
-                    elseif tonumber(accounts.balance[player:get_player_name()]) >= tonumber(fields.money) then
-                         accounts.balance[player:get_player_name()] = accounts.balance[player:get_player_name()] - tonumber(fields.money)
-                         minetest.chat_send_player(player:get_player_name(), "[ATM] Funds Successfully Withdrawn!")
-                         total_tens = math.floor(tonumber(fields.money) / 10)
+		 elseif tonumber(accounts.balance[player:get_player_name()]) >= tonumber(fields.money) then
+                         accounts.balance[player:get_player_name()] = tonumber(accounts.balance[player:get_player_name()]) - tonumber(fields.money)
+			 minetest.chat_send_player(player:get_player_name(), "[ATM] Funds Successfully Withdrawn!")
+			 local total_tens = {}
+			 local total_fives = {}
+			 local total_ones = {}
+			 total_tens = math.floor(tonumber(fields.money) / 10)
+			 print(total_tens)
                          total_fives = math.floor((tonumber(fields.money) - (total_tens * 10)) / 5)
+			 print(total_fives)
                          total_ones = tonumber(fields.money) - ((total_fives * 5) + (total_tens * 10))
+			 print(total_ones)
                          local pos = pos_info
                          local meta = minetest.get_meta(pos)
                          local inv = meta:get_inventory()
+			 inv:set_size("withdrawal", 3*1)
                          inv:add_item("withdrawal", {name="currency:minegeld_10", count=total_tens})
                          inv:add_item("withdrawal", {name="currency:minegeld_5", count=total_fives})
                          inv:add_item("withdrawal", {name="currency:minegeld", count=total_ones})
-                         local pos = pos_info
-                         local meta = minetest.get_meta(pos)
-                         local inv = meta:get_inventory()
-                         inv:set_size("withdrawal", 3*1)
                          local list_name = "nodemeta:" .. pos.x .. "," .. pos.y .. "," .. pos.z
                          minetest.show_formspec(player:get_player_name(), "bank_accounts:withdrawn_money",
                               "size[8,8]" ..
