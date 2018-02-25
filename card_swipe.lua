@@ -111,10 +111,20 @@ minetest.register_node("bank_accounts:card_swipe", {
           	end
      	end,
      	allow_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)
-          	return count
+		local meta = minetest.get_meta(pos)
+		if player:get_player_name() == meta:get_string("owner") then
+          		return count
+		else
+			return 0
+		end
      	end,
 	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-          	return stack:get_count()
+		local meta = minetest.get_meta(pos)
+		if player:get_player_name() == meta:get_string("owner") then
+          		return stack:get_count()
+		else
+			return 0
+		end
      	end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
           	done = done + 1
@@ -176,6 +186,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                     		inv:add_item("main", {name="bank_accounts:receipt", count=1})
                     		done = 0
                		end
+			return false
           	end
 		if fields.exit or fields.quit then
 			local meta = meta_info
