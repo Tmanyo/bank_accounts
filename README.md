@@ -35,7 +35,7 @@ Chatcommands:
 
 Privileges:
  - bank_teller (Allows players to use a Bank Teller's Computer.  You should only give this to trusted individuals.)
- - seized (If you have this, your account has been seized.  You do not want this privilege.)
+ - unseized (If you have this, your account is not seized.)
 
 With a debit card, when you buy an item through a card-swipe, it automatically takes money that you have deposited out of your account.
 With a credit card, when you buy an item through a card-swipe, it builds up credit debt.  There is a recommended monthly credit payment.
