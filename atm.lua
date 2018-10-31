@@ -63,24 +63,36 @@ minetest.register_node("bank_accounts:atm", {
           	local meta = minetest.get_meta(pos)
           	local inv = meta:get_inventory()
           	if listname == "ones" then
-               		if stack:get_name() ~= "currency:minegeld" then
-                    		local inventory = player:get_inventory()
-                    		inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                    		remove_currency = 1
-               		end
+                        if stack:get_name() ~= "currency:minegeld" then
+                                if stack:get_count() == 1 then
+                                        remove_currency = 1
+                                else
+                    		        local inventory = player:get_inventory()
+                    		        inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                                        remove_currency = 1
+               		        end
+                        end
 	        end
           	if listname == "fives" then
                		if stack:get_name() ~= "currency:minegeld_5" then
-                    		local inventory = player:get_inventory()
-                    		inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                    		remove_currency = 1
+                                if stack:get_count() == 1 then
+                                        remove_currency = 1
+                                else
+                    		        local inventory = player:get_inventory()
+                    		        inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                                        remove_currency = 1
+                                end
                		end
           	end
           	if listname == "tens" then
                		if stack:get_name() ~= "currency:minegeld_10" then
-                    		local inventory = player:get_inventory()
-                    		inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                    		remove_currency = 1
+                                if stack:get_count() == 1 then
+                                        remove_currency = 1
+                                else
+                    		        local inventory = player:get_inventory()
+                    		        inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                                        remove_currency = 1
+                                end
                		end
           	end
           	return 30000
