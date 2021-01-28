@@ -102,55 +102,85 @@ minetest.register_node("bank_accounts:atm", {
      	end,
      	on_metadata_inventory_put = function(pos, listname, index, stack, player)
           	local meta = minetest.get_meta(pos)
-          	local inv = meta:get_inventory()
+               local inv = meta:get_inventory()
           	if listname == "ones" then
-               		if remove_currency == 1 then
-                    		inv:set_stack("ones", index, nil)
-                    		remove_currency = 0
-               		end
-               		if stack:is_empty() == true then
-                    		deposited_ones = 0
-               		--elseif stack:get_count() == 1 then
-                    	--	local inventory = player:get_inventory()
-                    	--	inventory:add_item("main", {name=stack:get_name(), count=1})
-                    	--	inv:set_stack("ones", index, nil)
-                    	--	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
-                         else
+                    if remove_currency == 1 then
+                         inv:set_stack("ones", index, nil)
+                         remove_currency = 0
+                    end
+                    if stack:is_empty() == true then
+                         deposited_ones = 0
+                    elseif stack:get_count() >= 1 then
+                         if stack:get_name() == "currency:minegeld" then
+                              -- Ones
                               deposited_ones = stack:get_count()
+                         elseif stack:get_name() == "currency:minegeld_5" then
+                              -- Fives
+                              deposited_ones = stack:get_count() * 5
+                         elseif stack:get_name() == "currency:minegeld_10" then
+                              -- Tens
+                              deposited_ones = stack:get_count() * 10
+                         else
+                              -- Error recovery
+                              minetest.log("error", "[bank_accounts] Unknown denomination detected! Got "..stack:get_name().."")
+                              local inventory = player:get_inventory()
+                         	inventory:add_item("main", {name=stack:get_name(), count=1})
+                         	inv:set_stack("ones", index, nil)
                          end
-          end
-          if listname == "fives" then
+                    end
+               end
+               if listname == "fives" then
                	if remove_currency == 1 then
-                    	inv:set_stack("fives", index, nil)
-                    	remove_currency = 0
-               	end
-               	if stack:is_empty() == true then
-                    	deposited_fives = 0
-               	--elseif stack:get_count() == 1 then
-                    --	local inventory = player:get_inventory()
-                    --	inventory:add_item("main", {name=stack:get_name(), count=1})
-                    --	inv:set_stack("fives", index, nil)
-                    --	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
-               	else
-                    	deposited_fives = stack:get_count() * 5
-               	end
-          end
-          if listname == "tens" then
+                         inv:set_stack("fives", index, nil)
+                         remove_currency = 0
+                    end
+                    if stack:is_empty() == true then
+                         deposited_ones = 0
+                    elseif stack:get_count() >= 1 then
+                         if stack:get_name() == "currency:minegeld" then
+                              -- Ones
+                              deposited_ones = stack:get_count()
+                         elseif stack:get_name() == "currency:minegeld_5" then
+                              -- Fives
+                              deposited_ones = stack:get_count() * 5
+                         elseif stack:get_name() == "currency:minegeld_10" then
+                              -- Tens
+                              deposited_ones = stack:get_count() * 10
+                         else
+                              -- Error recovery
+                              minetest.log("error", "[bank_accounts] Unknown denomination detected! Got "..stack:get_name().."")
+                              local inventory = player:get_inventory()
+                         	inventory:add_item("main", {name=stack:get_name(), count=1})
+                         	inv:set_stack("fives", index, nil)
+                         end
+                    end
+               end
+               if listname == "tens" then
                	if remove_currency == 1 then
-                    	inv:set_stack("tens", index, nil)
-                    	remove_currency = 0
-               	end
-               	if stack:is_empty() == true then
-                    	deposited_tens = 0
-               	--elseif stack:get_count() == 1 then
-                    --	local inventory = player:get_inventory()
-                    --	inventory:add_item("main", {name=stack:get_name(), count=1})
-                    --	inv:set_stack("tens", index, nil)
-                    --	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
-               	else
-                    	deposited_tens = stack:get_count() * 10
-               	end
-          end
+                         inv:set_stack("tens", index, nil)
+                         remove_currency = 0
+                    end
+                    if stack:is_empty() == true then
+                         deposited_ones = 0
+                    elseif stack:get_count() >= 1 then
+                         if stack:get_name() == "currency:minegeld" then
+                              -- Ones
+                              deposited_ones = stack:get_count()
+                         elseif stack:get_name() == "currency:minegeld_5" then
+                              -- Fives
+                              deposited_ones = stack:get_count() * 5
+                         elseif stack:get_name() == "currency:minegeld_10" then
+                              -- Tens
+                              deposited_ones = stack:get_count() * 10
+                         else
+                              -- Error recovery
+                              minetest.log("error", "[bank_accounts] Unknown denomination detected! Got "..stack:get_name().."")
+                              local inventory = player:get_inventory()
+                         	inventory:add_item("main", {name=stack:get_name(), count=1})
+                         	inv:set_stack("tens", index, nil)
+                         end
+                    end
+               end
      end,
 })
 
