@@ -60,43 +60,43 @@ minetest.register_node("bank_accounts:atm", {
           return count
      	end,
 	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-          	local meta = minetest.get_meta(pos)
-          	local inv = meta:get_inventory()
-          	if listname == "ones" then
-                        if stack:get_name() ~= "currency:minegeld" then
-                                if stack:get_count() == 1 then
-                                        remove_currency = 1
-                                else
-                    		        local inventory = player:get_inventory()
-                    		        inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                                        remove_currency = 1
-               		        end
-                        end
-	        end
-          	if listname == "fives" then
-               		if stack:get_name() ~= "currency:minegeld_5" then
-                                if stack:get_count() == 1 then
-                                        remove_currency = 1
-                                else
-                    		        local inventory = player:get_inventory()
-                    		        inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                                        remove_currency = 1
-                                end
-               		end
-          	end
-          	if listname == "tens" then
-               		if stack:get_name() ~= "currency:minegeld_10" then
-                                if stack:get_count() == 1 then
-                                        remove_currency = 1
-                                else
-                    		        local inventory = player:get_inventory()
-                    		        inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
-                                        remove_currency = 1
-                                end
-               		end
-          	end
-          	return 30000
-     	end,
+          local meta = minetest.get_meta(pos)
+          local inv = meta:get_inventory()
+          if listname == "ones" then
+                    if stack:get_name() ~= "currency:minegeld" then
+                              if stack:get_count() == 1 then
+                                   remove_currency = 1
+                              else
+                                   local inventory = player:get_inventory()
+                                   inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                                   remove_currency = 1
+                              end
+                    end
+          end
+          if listname == "fives" then
+                    if stack:get_name() ~= "currency:minegeld_5" then
+                              if stack:get_count() == 1 then
+                                   remove_currency = 1
+                              else
+                                   local inventory = player:get_inventory()
+                                   inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                                   remove_currency = 1
+                              end
+                    end
+          end
+          if listname == "tens" then
+                    if stack:get_name() ~= "currency:minegeld_10" then
+                              if stack:get_count() == 1 then
+                                   remove_currency = 1
+                              else
+                                   local inventory = player:get_inventory()
+                                   inventory:add_item("main", {name=stack:get_name(), count=stack:get_count()})
+                                   remove_currency = 1
+                              end
+                    end
+          end
+          return 30000
+     end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
           	return stack:get_count()
      	end,
@@ -110,14 +110,14 @@ minetest.register_node("bank_accounts:atm", {
                		end
                		if stack:is_empty() == true then
                     		deposited_ones = 0
-               		elseif stack:get_count() == 1 then
-                    		local inventory = player:get_inventory()
-                    		inventory:add_item("main", {name=stack:get_name(), count=1})
-                    		inv:set_stack("ones", index, nil)
-                    		minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
-               	else
-                    	deposited_ones = stack:get_count()
-               	end
+               		--elseif stack:get_count() == 1 then
+                    	--	local inventory = player:get_inventory()
+                    	--	inventory:add_item("main", {name=stack:get_name(), count=1})
+                    	--	inv:set_stack("ones", index, nil)
+                    	--	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
+                         else
+                              deposited_ones = stack:get_count()
+                         end
           end
           if listname == "fives" then
                	if remove_currency == 1 then
@@ -126,11 +126,11 @@ minetest.register_node("bank_accounts:atm", {
                	end
                	if stack:is_empty() == true then
                     	deposited_fives = 0
-               	elseif stack:get_count() == 1 then
-                    	local inventory = player:get_inventory()
-                    	inventory:add_item("main", {name=stack:get_name(), count=1})
-                    	inv:set_stack("fives", index, nil)
-                    	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
+               	--elseif stack:get_count() == 1 then
+                    --	local inventory = player:get_inventory()
+                    --	inventory:add_item("main", {name=stack:get_name(), count=1})
+                    --	inv:set_stack("fives", index, nil)
+                    --	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
                	else
                     	deposited_fives = stack:get_count() * 5
                	end
@@ -142,11 +142,11 @@ minetest.register_node("bank_accounts:atm", {
                	end
                	if stack:is_empty() == true then
                     	deposited_tens = 0
-               	elseif stack:get_count() == 1 then
-                    	local inventory = player:get_inventory()
-                    	inventory:add_item("main", {name=stack:get_name(), count=1})
-                    	inv:set_stack("tens", index, nil)
-                    	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
+               	--elseif stack:get_count() == 1 then
+                    --	local inventory = player:get_inventory()
+                    --	inventory:add_item("main", {name=stack:get_name(), count=1})
+                    --	inv:set_stack("tens", index, nil)
+                    --	minetest.chat_send_player(player:get_player_name(), "[ATM] Must insert more than one Minegeld Note.")
                	else
                     	deposited_tens = stack:get_count() * 10
                	end
@@ -187,7 +187,7 @@ function monthly_credit(player)
      if get_credit(player) == 0 then
           monthly_payment = 0
      else
-          monthly_payment = math.floor(get_credit(player) * .04)
+          monthly_payment = math.floor(get_credit(player) * .04) -- Ah a 0.4% monthly? payment (Ok what's a month in minetest? 30 days? 1 day?)
      end
      return monthly_payment
 end
@@ -229,7 +229,7 @@ function main_form(player)
           "button[1,2.5;3,1;monthly_credit;Pay Monthly Credit]" ..
           "label[4,1;Account Balance: $" .. get_balance(player) .."]" ..
           "label[4,1.5;Total Credit Debt: $" .. get_credit(player) .."]" ..
-          "label[4,2;Monthly Credit Payment: $" .. monthly_credit(player) .."]" ..
+          "label[4,2;Monthly Credit Payment: $" .. monthly_credit(player) .."]" .. -- This goes right off the edge of the screen can we shorten this text any?
           "button[1,3.5;3,1;credit_card;Get Credit Card]" ..
           "button[1,4.5;3,1;debit_card;Get Debit Card]" ..
           "button_exit[5,7;2,1;exit;Close]")
