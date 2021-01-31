@@ -8,7 +8,6 @@ If you have privs priv.  When you grant yourself all, you will be given "seized"
 
 Credits:
  - NathanS21 for textures and models.
- - Tmanyo for code.
 
 This mod uses the currency mod to provide different ways of paying for items in Minetest.
  - Debit card
