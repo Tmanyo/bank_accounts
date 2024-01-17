@@ -64,3 +64,9 @@ This mod is under development still, so there may be some issues.
 
 Bank Teller's Computer:
  - This is used by people who have the bank_teller privilege.  It has all the features an ATM does and allows for wiping a player's   account, forgiving credit debt, reseting PINs, and over-viewing player's account statistics.  If you are an admin, you can press E and rightclick this node, to search player names to check if they are seized or not.
+
+Server owners can set the following:
+ * bank_accounts.interest_period (defaults to 1%). It can also be adjusted in game via /interest_period
+ * bank_accounts.interest_rate (defaults to 5 seconds). It can be also adjusted in game via /interest_rate
+
+ Those commands for non-server owners only displays the values.
